@@ -1,0 +1,21 @@
+// Serhan Turizm — Prisma schema (bootstrap phase)
+//
+// This is intentionally minimal. Only the client generator and the PostgreSQL
+// datasource are declared here. The full domain model (Okul, OnKayit, Consent,
+// Teklif, IsBasvuru, Iletisim, AracGeriBildirim, User, ...) will be added in a
+// later phase.
+//
+// Prisma ORM v7 notes:
+//   - The `prisma-client` provider generates a Rust-free ESM client.
+//   - The client is generated to `./generated/prisma` (relative to this file),
+//     i.e. `prisma/generated/prisma`, and MUST NOT be committed (see .gitignore).
+//   - The datasource connection URL lives in prisma.config.ts, not here.
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
