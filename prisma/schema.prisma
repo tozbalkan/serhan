@@ -1,15 +1,20 @@
-// Serhan Turizm — Prisma schema (bootstrap phase)
-//
-// This is intentionally minimal. Only the client generator and the PostgreSQL
-// datasource are declared here. The full domain model (Okul, OnKayit, Consent,
-// Teklif, IsBasvuru, Iletisim, AracGeriBildirim, User, ...) will be added in a
-// later phase.
+// Serhan Turizm — Prisma schema (domain model)
 //
 // Prisma ORM v7 notes:
 //   - The `prisma-client` provider generates a Rust-free ESM client.
 //   - The client is generated to `./generated/prisma` (relative to this file),
 //     i.e. `prisma/generated/prisma`, and MUST NOT be committed (see .gitignore).
 //   - The datasource connection URL lives in prisma.config.ts, not here.
+//   - The client is wired to PostgreSQL via the `@prisma/adapter-pg` driver
+//     adapter in `lib/db.ts`. Do not revert to an older Prisma architecture.
+//
+// Domain model:
+//   The models below represent the actual Serhan Turizm domain. They are kept
+//   simple and direct — no repositories, no service layers, no audit-event or
+//   soft-delete infrastructure. Request types (Teklif, IsBasvuru, Iletisim,
+//   AracGeriBildirim) are intentionally SEPARATE tables; the future admin
+//   "Talepler" view normalizes them at the query layer. No polymorphic Request
+//   table, no UNION infrastructure.
 
 generator client {
   provider = "prisma-client"
@@ -18,4 +23,146 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Shared enum
+// ---------------------------------------------------------------------------
+
+enum TalepDurumu {
+  YENI
+  INCELENIYOR
+  ILETISIME_GECILDI
+  TAMAMLANDI
+}
+
+// ---------------------------------------------------------------------------
+// Okul (School)
+// ---------------------------------------------------------------------------
+
+model Okul {
+  id            String   @id @default(cuid())
+  ad            String
+  slug          String   @unique // immutable from the application perspective
+  aktif         Boolean  @default(true) // false disables the QR form; URL stays valid
+  tcKimlikIster Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  onKayitlar OnKayit[]
+
+  @@index([aktif])
+}
+
+// ---------------------------------------------------------------------------
+// OnKayit (School-service pre-registration via QR)
+// ---------------------------------------------------------------------------
+
+model OnKayit {
+  id                 String      @id @default(cuid())
+  okulId             String
+  ogrenciAd          String
+  ogrenciSoyad       String
+  sinifKademe        String
+  tcKimlikNo         String? // required only when Okul.tcKimlikIster; decided at app layer
+  adres              String
+  veliAdSoyad        String
+  telefon            String
+  eposta             String?
+  status             TalepDurumu @default(YENI)
+  notificationSent   Boolean     @default(false)
+  notificationSentAt DateTime?
+  createdAt          DateTime    @default(now())
+
+  okul    Okul     @relation(fields: [okulId], references: [id])
+  consent Consent?
+
+  @@index([okulId])
+  @@index([createdAt])
+  @@index([status])
+}
+
+// ---------------------------------------------------------------------------
+// Consent (KVKK consent record, kept independent from operational OnKayit data)
+// ---------------------------------------------------------------------------
+
+model Consent {
+  id                    String    @id @default(cuid())
+  onKayitId             String    @unique // one-to-one with OnKayit
+  privacyNoticeVersion  String // which legal version was acknowledged (see lib/legal/config.ts)
+  privacyAcknowledgedAt DateTime
+  explicitConsent       Boolean
+  explicitConsentAt     DateTime?
+  marketingConsent      Boolean   @default(false)
+  marketingConsentAt    DateTime?
+  ipAddress             String
+
+  onKayit OnKayit @relation(fields: [onKayitId], references: [id], onDelete: Cascade)
+}
+
+// ---------------------------------------------------------------------------
+// Request types (separate tables — no polymorphic Request model)
+// ---------------------------------------------------------------------------
+
+model Teklif {
+  id        String      @id @default(cuid())
+  adSoyad   String
+  telefon   String
+  eposta    String
+  mesaj     String
+  status    TalepDurumu @default(YENI)
+  createdAt DateTime    @default(now())
+
+  @@index([createdAt])
+  @@index([status])
+}
+
+model IsBasvuru {
+  id        String      @id @default(cuid())
+  adSoyad   String
+  telefon   String
+  eposta    String
+  mesaj     String
+  status    TalepDurumu @default(YENI)
+  createdAt DateTime    @default(now())
+
+  @@index([createdAt])
+  @@index([status])
+}
+
+model Iletisim {
+  id        String      @id @default(cuid())
+  adSoyad   String
+  telefon   String
+  eposta    String
+  mesaj     String
+  status    TalepDurumu @default(YENI)
+  createdAt DateTime    @default(now())
+
+  @@index([createdAt])
+  @@index([status])
+}
+
+model AracGeriBildirim {
+  id        String      @id @default(cuid())
+  adSoyad   String
+  telefon   String
+  eposta    String
+  mesaj     String
+  status    TalepDurumu @default(YENI)
+  createdAt DateTime    @default(now())
+
+  @@index([createdAt])
+  @@index([status])
+}
+
+// ---------------------------------------------------------------------------
+// User (minimal, for future admin authentication — no auth implemented yet)
+// ---------------------------------------------------------------------------
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
