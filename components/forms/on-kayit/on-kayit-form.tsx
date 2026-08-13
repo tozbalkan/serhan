@@ -27,6 +27,7 @@ type Props = {
   slug: string;
   okulAd: string;
   showTc: boolean;
+  explicitConsentRequired: boolean;
 };
 
 type FieldErrors = Record<string, string>;
@@ -35,7 +36,7 @@ const STEP_LABELS = ["Öğrenci", "Veli / İletişim", "KVKK / Onay"];
 
 type FormState = { ok: boolean; error?: string; fieldErrors?: FieldErrors };
 
-export function OnKayitForm({ slug, okulAd, showTc }: Props) {
+export function OnKayitForm({ slug, okulAd, showTc, explicitConsentRequired }: Props) {
   const [step, setStep] = useState(0);
   const [errors, setErrors] = useState<FieldErrors>({});
   const formRef = useRef<HTMLFormElement>(null);
@@ -88,7 +89,11 @@ export function OnKayitForm({ slug, okulAd, showTc }: Props) {
 
     if (current === 2) {
       if (data.get("privacyAcknowledged") !== "true") next.privacyAcknowledged = "Aydınlatma metnini onaylamanız gerekir.";
-      if (data.get("explicitConsent") !== "true") next.explicitConsent = "Açık rızanız gerekir.";
+      // Explicit consent is only enforced client-side when the server config
+      // requires it. The server re-validates this requirement authoritatively.
+      if (explicitConsentRequired && data.get("explicitConsent") !== "true") {
+        next.explicitConsent = "Açık rızanız gerekir.";
+      }
     }
 
     setErrors(next);
@@ -224,8 +229,9 @@ export function OnKayitForm({ slug, okulAd, showTc }: Props) {
             </p>
             <p style={{ marginTop: "0.5rem" }}>
               <strong>Açık Rıza Metni</strong> (sürüm {LEGAL_VERSIONS.explicitConsent}):
-              Kişisel verilerinizin ön kayıt süreci kapsamında işlenmesine açık rızanız
-              gerekmektedir.
+              Kişisel verilerinizin ön kayıt süreci kapsamında işlenmesi, yalnızca
+              açık rızanızın bulunduğu durumlarda geçerlidir. Açık rıza, aydınlatma
+              yükümlülüğünden ayrı bir onaydır.
             </p>
           </div>
 
@@ -238,14 +244,16 @@ export function OnKayitForm({ slug, okulAd, showTc }: Props) {
           </label>
           {err("privacyAcknowledged") ? <span className={s.checkboxError}>{err("privacyAcknowledged")}</span> : null}
 
-          <label className={s.checkboxRow}>
-            <input type="checkbox" name="explicitConsent" value="true" className={s.checkbox} />
-            <span>
-              Kişisel verilerimin ön kayıt süreci kapsamında işlenmesini açık rızamla kabul
-              ediyorum.
-              <span className={s.requiredMark}> *</span>
-            </span>
-          </label>
+          {explicitConsentRequired ? (
+            <label className={s.checkboxRow}>
+              <input type="checkbox" name="explicitConsent" value="true" className={s.checkbox} />
+              <span>
+                Kişisel verilerimin ön kayıt süreci kapsamında işlenmesini açık rızamla kabul
+                ediyorum.
+                <span className={s.requiredMark}> *</span>
+              </span>
+            </label>
+          ) : null}
           {err("explicitConsent") ? <span className={s.checkboxError}>{err("explicitConsent")}</span> : null}
 
           <label className={s.checkboxRow}>

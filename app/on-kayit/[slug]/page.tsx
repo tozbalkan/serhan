@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getSchoolBySlug } from "@/lib/schools";
+import { REGISTRATION_LEGAL_CONFIG } from "@/lib/legal/config";
 import { OnKayitForm } from "@/components/forms/on-kayit/on-kayit-form";
 import { page, title, name, closed, badge } from "./page.css";
 
@@ -47,7 +48,12 @@ export default async function OnKayitPage(
       </p>
       <h1 className={title}>{okul.ad}</h1>
       <p className={name}>Okul servisi ön kaydı</p>
-      <OnKayitForm slug={slug} okulAd={okul.ad} showTc={okul.tcKimlikIster} />
+      <OnKayitForm
+        slug={slug}
+        okulAd={okul.ad}
+        showTc={okul.tcKimlikIster}
+        explicitConsentRequired={REGISTRATION_LEGAL_CONFIG.explicitConsentRequired}
+      />
     </main>
   );
 }

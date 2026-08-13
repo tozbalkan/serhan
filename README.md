@@ -54,5 +54,13 @@ npx prisma generate  # Prisma client yeniden üret
 değişikliği öncesinde okunmalıdır.
 
 > **Aşamalar:** Bootstrap ✅ · Domain şeması + migration ✅ · Okul yönetimi + QR
-> + herkese açık okul girişi ✅. Sıradaki: ön kayıt formu, onay (KVKK), Resend
-> bildirimleri, birleşik talepler, kimlik doğrulama UI, CMS.
+> + herkese açık okul girişi ✅ · Okul servisi ön kayıt akışı (form, KVKK onay
+> akışı, TC algoritmik doğrulama, Resend bildirimleri) ✅.
+>
+> **Önemli:** Açık rıza (explicit consent) ön kayıt akışı için **yapılandırılabilir**
+> bir gereksinimdir; evrensel olarak zorunlu kabul edilmez. Varsayılan
+> `REGISTRATION_LEGAL_CONFIG.explicitConsentRequired = false` olup bu geçici bir
+> teknik varsayımdır — hukuki dayanak (sözleşme/meşru menfaat veya açık rıza)
+> hukuk birimi tarafından teyit edilene kadar geçerlidir. Pazarlama izni her
+> zaman ayrı ve isteğe bağlıdır; aydınlatma ile açık rıza ayrı kavramlardır.
+> Sıradaki: birleşik talepler, kimlik doğrulama UI, CMS.

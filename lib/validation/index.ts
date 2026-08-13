@@ -72,7 +72,10 @@ export type OnKayitFormValues = {
   marketingConsent: boolean;
 };
 
-export function onKayitSchema(tcKimlikIster: boolean): z.ZodType<OnKayitFormValues> {
+export function onKayitSchema(
+  tcKimlikIster: boolean,
+  explicitConsentRequired: boolean,
+): z.ZodType<OnKayitFormValues> {
   const base = z.object({
     ogrenciAd: z.string().trim().min(1, "Öğrenci adı gereklidir.").max(80),
     ogrenciSoyad: z.string().trim().min(1, "Öğrenci soyadı gereklidir.").max(80),
@@ -85,8 +88,15 @@ export function onKayitSchema(tcKimlikIster: boolean): z.ZodType<OnKayitFormValu
       .optional()
       .transform((v) => (v === "" || v === undefined ? undefined : v)),
     adres: z.string().trim().min(1, "Adres gereklidir.").max(300),
+    // Privacy acknowledgement is always required and is separate from explicit
+    // consent: it reflects being informed, not generic approval.
     privacyAcknowledged: z.literal(true),
-    explicitConsent: z.literal(true),
+    // Explicit consent is conditional. When the processing activity legally
+    // requires it (server config), it must be true; otherwise it may be false
+    // or absent. Never hard-coded as universally mandatory.
+    explicitConsent: explicitConsentRequired
+      ? z.literal(true)
+      : z.boolean().optional().default(false),
     marketingConsent: z.boolean().optional().default(false),
   });
 

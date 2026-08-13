@@ -20,7 +20,7 @@ import "server-only";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/db";
 import { getClientIp } from "@/lib/ip";
-import { LEGAL_VERSIONS } from "@/lib/legal/config";
+import { LEGAL_VERSIONS, REGISTRATION_LEGAL_CONFIG } from "@/lib/legal/config";
 import { maskTcKimlik } from "@/lib/tc-kimlik";
 import { onKayitSchema } from "@/lib/validation";
 import {
@@ -60,7 +60,9 @@ export async function submitOnKayit(
     return { ok: false, error: "Bu okul için ön kayıt şu anda kapalı." };
   }
 
-  // 3. Pick the schema based on the school's TC requirement.
+  // 3. Pick the schema based on the school's TC requirement AND the
+  //    server-controlled explicit-consent requirement. The explicit-consent
+  //    flag comes from REGISTRATION_LEGAL_CONFIG (never from the client).
   //    FormData delivers checkbox/boolean values as strings ("true" when
   //    checked, absent when unchecked). Coerce the known boolean fields to
   //    real booleans before validation so Zod's `literal(true)` checks hold.
@@ -71,7 +73,10 @@ export async function submitOnKayit(
     normalized[key] = raw === "true";
   }
 
-  const schema = onKayitSchema(okul.tcKimlikIster);
+  const schema = onKayitSchema(
+    okul.tcKimlikIster,
+    REGISTRATION_LEGAL_CONFIG.explicitConsentRequired,
+  );
   const parsed = schema.safeParse(normalized);
   if (!parsed.success) {
     return {
@@ -114,8 +119,14 @@ export async function submitOnKayit(
         onKayitId: created.id,
         privacyNoticeVersion: LEGAL_VERSIONS.privacyNotice,
         privacyAcknowledgedAt: consentAt,
+        // Explicit consent is stored as given. When the flow does NOT require
+        // it, the value may be false/absent and the timestamp is left null —
+        // the database model is preserved without adding unnecessary legal state.
         explicitConsent: v.explicitConsent,
-        explicitConsentAt: consentAt,
+        explicitConsentAt:
+          REGISTRATION_LEGAL_CONFIG.explicitConsentRequired && v.explicitConsent
+            ? consentAt
+            : null,
         marketingConsent: v.marketingConsent,
         marketingConsentAt: v.marketingConsent ? consentAt : null,
         ipAddress: ip ?? "",
