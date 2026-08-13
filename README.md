@@ -17,10 +17,14 @@ modüler monolit (Next.js + PostgreSQL + Prisma).
 
 ```bash
 npm install
-cp .env.example .env   # ardından DATABASE_URL vb. değerleri doldur
+cp .env.example .env   # ardından DATABASE_URL, NEXT_PUBLIC_APP_URL vb. değerleri doldur
 npx prisma generate    # Prisma client üret (prisma/generated)
 npm run dev
 ```
+
+> Not: `NEXT_PUBLIC_APP_URL`, QR kodlarının işaret ettiği kalıcı herkese açık
+> URL'nin tek kaynağıdır. Yerel geliştirmede `http://localhost:3000`, Vercel'de
+> üretim adresi (`https://serhanturizm.com`) olmalıdır.
 
 ## Komutlar
 
@@ -35,10 +39,10 @@ npx prisma generate  # Prisma client yeniden üret
 
 ## Yapı
 
-- `app/` — `(website)`, `on-kayit/[slug]`, `admin` rotaları
-- `components/` — `ui/`, `website/`, `forms/`, `admin/`
-- `lib/` — `db`, `auth`, `resend`, `qr`, `ip`, `validation`, `legal`
-- `prisma/` — `schema.prisma` (şimdilik minimal) + üretilen client
+- `app/` — `(website)`, `on-kayit/[slug]` (herkese açık okul girişi), `admin/okullar` (okul yönetimi), `api/admin/okullar/[id]/qr` (QR üretimi)
+- `components/` — `admin/` (okul tablosu, QR indirme, durum değiştirme, oluşturma formu)
+- `lib/` — `db`, `auth`, `resend`, `qr`, `ip`, `validation`, `legal`, `slug`, `schools`
+- `prisma/` — `schema.prisma` (tam domain modeli) + üretilen client + migration
 - `styles/` — tasarım tokenları (HSL) ve global stiller
 - `legal/` — sürümlemeyle tutulan yasal belgeler
 - `docs/` — `architecture.md`, `frontend-rules.md` (kalıcı kurallar)
@@ -49,5 +53,6 @@ npx prisma generate  # Prisma client yeniden üret
 `docs/architecture.md` dosyasına bakın. Bu kurallar kalıcıdır; her kod
 değişikliği öncesinde okunmalıdır.
 
-> Bu depo yalnızca **bootstrap** aşamasındadır. Alan özellikleri (okul CRUD,
-> QR akışı, ön kayıt, onay, CMS, kimlik doğrulama UI) sonraki aşamalarda eklenir.
+> **Aşamalar:** Bootstrap ✅ · Domain şeması + migration ✅ · Okul yönetimi + QR
+> + herkese açık okul girişi ✅. Sıradaki: ön kayıt formu, onay (KVKK), Resend
+> bildirimleri, birleşik talepler, kimlik doğrulama UI, CMS.
