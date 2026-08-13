@@ -22,6 +22,10 @@ legal/
 
 ## Status
 
-This is the bootstrap phase. **No legal text has been written yet.** The actual
-KVKK aydınlatma and açık rıza documents will be added in a later phase by the
-appropriate owner. Do not invent legal language here.
+The legal document files exist as **placeholders** (`kvkk-aydinlatma-2026.08.01.md`
+and `kvkk-acik-riza-2026.08.01.md`). They contain only structural comments and
+**no legal text** — the actual KVKK aydınlatma and açık rıza wording will be
+supplied by the appropriate owner in a later phase. The consent flow references
+the `2026.08.01` versions via `LEGAL_VERSIONS`; when the real text arrives, the
+file contents are replaced (new version files are added only if the version
+date changes). Do not invent legal language here.

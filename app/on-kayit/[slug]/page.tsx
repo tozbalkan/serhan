@@ -1,14 +1,15 @@
 import { notFound } from "next/navigation";
 import { getSchoolBySlug } from "@/lib/schools";
-import { page, title, name, note, closed, badge } from "./page.css";
+import { OnKayitForm } from "@/components/forms/on-kayit/on-kayit-form";
+import { page, title, name, closed, badge } from "./page.css";
 
-// Public school-service pre-registration entry point (Phase 3).
+// Public school-service pre-registration entry point (Phase 4).
 //
 // The route `slug` is the authoritative school identifier. We resolve the school
 // by slug (never by a client-provided id or hidden field). Behaviour:
 //   - school not found  → 404
 //   - school inactive   → simple "closed" state, but the QR URL stays valid
-//   - school active     → show name + a placeholder indicating the form is coming
+//   - school active     → show the multi-step pre-registration form
 //
 // Rendered dynamically: the school is looked up live from PostgreSQL per request.
 export const dynamic = "force-dynamic";
@@ -46,10 +47,7 @@ export default async function OnKayitPage(
       </p>
       <h1 className={title}>{okul.ad}</h1>
       <p className={name}>Okul servisi ön kaydı</p>
-      <p className={note}>
-        Ön kayıt formu yakında bu sayfada yayınlanacaktır. TC Kimlik numarası
-        {okul.tcKimlikIster ? " bu okul için zorunludur." : " bu okul için isteğe bağlıdır."}
-      </p>
+      <OnKayitForm slug={slug} okulAd={okul.ad} showTc={okul.tcKimlikIster} />
     </main>
   );
 }
