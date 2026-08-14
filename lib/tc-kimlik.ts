@@ -47,6 +47,12 @@ export function isValidTcKimlik(value: unknown): boolean {
 // Keeps only the last 4 digits; masks everything else. Never use the full value.
 export function maskTcKimlik(value: string): string {
   const tc = value.trim();
-  if (tc.length !== TC_LENGTH || !/^\d{11}$/.test(tc)) return "***-****";
-  return `*******${tc.slice(7)}`;
+  if (tc.length !== TC_LENGTH || !/^\d{11}$/.test(tc)) return "*********0000";
+  return `*********${tc.slice(-4)}`;
+}
+
+export function maskStoredTcKimlik(value: string): string {
+  const tc = value.trim();
+  if (!/^\d{4,11}$/.test(tc)) return "*********0000";
+  return `*********${tc.slice(-4)}`;
 }

@@ -1,17 +1,13 @@
 import { listSchools } from "@/lib/schools";
 import { SchoolTable } from "@/components/admin/school-table";
 import { SchoolCreateForm } from "@/components/admin/school-create-form";
+import { requireAdminSession } from "@/lib/auth";
 import { page, heading, layout, sectionTitle } from "./page.css";
 
-// Data-driven admin page: render at request time (the school list is read
-// live from PostgreSQL), not statically prerendered at build time.
 export const dynamic = "force-dynamic";
 
-// Admin — Schools management (Phase 3).
-// Server Component: fetches schools server-side. Interactive controls inside the
-// table and the creation form are Client Components; this page is NOT a Client
-// Component.
 export default async function AdminSchoolsPage() {
+  await requireAdminSession();
   const schools = await listSchools();
 
   return (
