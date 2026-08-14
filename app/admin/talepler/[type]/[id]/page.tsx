@@ -92,7 +92,7 @@ export default async function RequestDetailPage({
       {isOnKayit && detail.musteri ? (
         <section className={styles.card}>
           <h2 className={styles.sectionTitle}>Müşteri (CRM)</h2>
-          <div style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(auto-fit, minmax(16rem, 1fr))" }}>
+          <div className={styles.detailGrid}>
             <dl className={styles.list}>
               <div className={styles.listRow}>
                 <dt className={styles.listLabel}>Ad Soyad</dt>
@@ -124,7 +124,7 @@ export default async function RequestDetailPage({
               </dl>
             ) : null}
           </div>
-          <Link href={`/admin/musteriler/${detail.musteri.id}`} className={styles.backLink} style={{ marginTop: "1rem", display: "inline-block" }}>
+          <Link href={`/admin/musteriler/${detail.musteri.id}`} className={styles.inlineLink}>
             Müşteri detaylarını gör
           </Link>
         </section>

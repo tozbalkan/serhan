@@ -195,3 +195,17 @@ export const successText = style({
 globalStyle(`${input}[type="tel"], ${input}[inputmode="numeric"]`, {
   letterSpacing: "0.05em",
 });
+
+export const fieldset = style({
+  border: "none",
+  padding: 0,
+  display: "flex",
+  flexDirection: "column",
+  gap: vars.space.md,
+});
+
+export const noteText = style({
+  marginTop: vars.space.xs,
+  color: vars.color.mutedForeground,
+  fontSize: vars.font.sizeSm,
+});

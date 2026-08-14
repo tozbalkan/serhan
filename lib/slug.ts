@@ -40,6 +40,10 @@ export function slugify(input: string): string {
     .slice(0, 80);
 }
 
+export function generateSlug(input: string): string {
+  return slugify(input);
+}
+
 // Build a deterministic unique slug given an existing set of slugs.
 // Base collisions get a numeric suffix: "abc", "abc-2", "abc-3", ...
 export function uniqueSlug(base: string, existing: Set<string>): string {

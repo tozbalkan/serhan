@@ -205,6 +205,100 @@ model AracGeriBildirim {
 }
 
 // ---------------------------------------------------------------------------
+// Content status (Phase 7: CMS)
+// ---------------------------------------------------------------------------
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+}
+
+// ---------------------------------------------------------------------------
+// CMS Content Models (Phase 7)
+// ---------------------------------------------------------------------------
+
+model Page {
+  id              String        @id @default(cuid())
+  title           String
+  slug            String        @unique // immutable; generated on creation
+  excerpt         String?
+  content         String        // full page content (text/HTML)
+  status          ContentStatus @default(DRAFT)
+  seoTitle        String?
+  seoDescription  String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Service {
+  id              String  @id @default(cuid())
+  name            String
+  slug            String  @unique // immutable; generated on creation
+  shortDescription String?
+  content         String  // full service content
+  imageUrl        String? // URL/path reference, no binary storage
+  sortOrder       Int     @default(0)
+  active          Boolean @default(true)
+  seoTitle        String?
+  seoDescription  String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([active])
+  @@index([sortOrder])
+}
+
+model Reference {
+  id              String  @id @default(cuid())
+  name            String
+  logoUrl         String? // URL/path reference, no binary storage
+  websiteUrl      String?
+  description     String?
+  sortOrder       Int     @default(0)
+  active          Boolean @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([active])
+  @@index([sortOrder])
+}
+
+model FaqItem {
+  id              String   @id @default(cuid())
+  question        String
+  answer          String
+  sortOrder       Int      @default(0)
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([active])
+  @@index([sortOrder])
+}
+
+model BlogPost {
+  id              String        @id @default(cuid())
+  title           String
+  slug            String        @unique // immutable; generated on creation
+  excerpt         String?
+  content         String        // full post content
+  coverImage      String?       // URL/path reference, no binary storage
+  status          ContentStatus @default(DRAFT)
+  publishedAt     DateTime?     // null until published
+  seoTitle        String?
+  seoDescription  String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([status])
+  @@index([publishedAt])
+  @@index([createdAt])
+}
+
+// ---------------------------------------------------------------------------
 // User (minimal, for future admin authentication — no auth implemented yet)
 // ---------------------------------------------------------------------------
 

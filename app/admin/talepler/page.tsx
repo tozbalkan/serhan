@@ -23,7 +23,7 @@ const STATUS_OPTIONS = [
 export default async function AdminRequestsPage({
   searchParams,
 }: {
-  searchParams?: Promise<Record<string, string | string[] | undefined>> | Record<string, string | string[] | undefined>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   await requireAdminSession();
 

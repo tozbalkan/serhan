@@ -124,7 +124,7 @@ export function OnKayitForm({ slug, okulAd, showTc, explicitConsentRequired }: P
       </ol>
 
       {step === 0 && (
-        <fieldset style={{ border: "none", padding: 0, display: "flex", flexDirection: "column", gap: "var(--space-md, 1rem)" }}>
+        <fieldset className={s.fieldset}>
           <legend className={s.stepHeading}>Öğrenci Bilgileri</legend>
 
           <div className={s.field}>
@@ -167,7 +167,7 @@ export function OnKayitForm({ slug, okulAd, showTc, explicitConsentRequired }: P
               {err("tcKimlikNo") ? (
                 <span className={s.fieldError}>{err("tcKimlikNo")}</span>
               ) : (
-                <span className={s.fieldError} style={{ color: "var(--muted-foreground, hsl(0 0% 40%))" }}>
+                <span className={s.noteText}>
                   Kimlik numarası formatı kontrol edilir; tam numara saklanmaz.
                 </span>
               )}
@@ -177,7 +177,7 @@ export function OnKayitForm({ slug, okulAd, showTc, explicitConsentRequired }: P
       )}
 
       {step === 1 && (
-        <fieldset style={{ border: "none", padding: 0, display: "flex", flexDirection: "column", gap: "var(--space-md, 1rem)" }}>
+        <fieldset className={s.fieldset}>
           <legend className={s.stepHeading}>Veli / İletişim</legend>
 
           <div className={s.field}>
@@ -215,19 +215,19 @@ export function OnKayitForm({ slug, okulAd, showTc, explicitConsentRequired }: P
       )}
 
       {step === 2 && (
-        <fieldset style={{ border: "none", padding: 0, display: "flex", flexDirection: "column", gap: "var(--space-md, 1rem)" }}>
+        <fieldset className={s.fieldset}>
           <legend className={s.stepHeading}>KVKK / Açık Rıza</legend>
 
           <div className={s.legalBox}>
             <p>
               <strong>KVKK Aydınlatma Metni</strong> (sürüm {LEGAL_VERSIONS.privacyNotice})
             </p>
-            <p style={{ marginTop: "0.5rem" }}>
+            <p className={s.noteText}>
               Verileriniz, okul servisi ön kaydı talebinizin değerlendirilmesi amacıyla
               işlenir. Aydınlatma metninin tamamı yasal belge olarak ayrıca sunulacaktır
               (belge hazırlanma aşamasındadır).
             </p>
-            <p style={{ marginTop: "0.5rem" }}>
+            <p className={s.noteText}>
               <strong>Açık Rıza Metni</strong> (sürüm {LEGAL_VERSIONS.explicitConsent}):
               Kişisel verilerinizin ön kayıt süreci kapsamında işlenmesi, yalnızca
               açık rızanızın bulunduğu durumlarda geçerlidir. Açık rıza, aydınlatma

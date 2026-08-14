@@ -94,3 +94,14 @@ export const button = style({
   fontWeight: vars.font.weightMedium,
   cursor: "pointer",
 });
+
+export const detailGrid = style({
+  display: "grid",
+  gap: vars.space.md,
+  gridTemplateColumns: "repeat(auto-fit, minmax(16rem, 1fr))",
+});
+
+export const inlineLink = style({
+  marginTop: vars.space.md,
+  display: "inline-block",
+});

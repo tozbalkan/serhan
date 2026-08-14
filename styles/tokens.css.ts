@@ -25,6 +25,7 @@ export const vars = createGlobalTheme(":root", {
     primaryForeground: "hsl(0 0% 100%)",
     accent: "hsl(215 20% 92%)",
     danger: "hsl(0 70% 45%)",
+    dangerBg: "hsl(0 70% 96%)",
     success: "hsl(140 50% 38%)",
   },
 
