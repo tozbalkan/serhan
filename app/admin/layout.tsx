@@ -5,6 +5,7 @@ import { page, nav, links, link, actions } from "./layout.css";
 const navItems = [
   { href: "/admin", label: "Dashboard" },
   { href: "/admin/talepler", label: "Talepler" },
+  { href: "/admin/musteriler", label: "Müşteriler" },
   { href: "/admin/okullar", label: "Okullar" },
 ];
 

@@ -91,13 +91,71 @@ complex auth system in the bootstrap phase. `lib/auth.ts` establishes only the
 seam (admin route prefix and a placeholder `AdminSession` type). Login UI,
 password reset, user management, and RBAC arrive in a later phase.
 
+## CRM Foundation (Phase 6)
+
+A minimal customer relationship model allows Serhan Turizm to recognize
+returning parents and children across pre-registration submissions over several
+years, without building a full CRM product.
+
+### Core entities
+
+- **Musteri** (Customer/Parent): Persistent identity, matched by phone (primary)
+  or email (secondary). Contains only name, phone, email. No TC, no verification
+  results.
+- **Ogrenci** (Student): Persistent identity within a customer and school.
+  Matched by first name + last name + school. Class can be updated when a
+  student is re-matched (progression tracking).
+- **OnKayit** (Pre-registration submission): Historical snapshot. Preserves all
+  original submitted data. Never overwritten. References current Musteri and
+  Ogrenci for CRM linkage.
+- **Consent**: Tied to specific OnKayit. Represents the legal state at
+  submission time. One Consent per OnKayit.
+
+### Matching strategy
+
+Conservative and deterministic:
+
+- **Customer matching**: Phone → Email → Create new. No fuzzy matching.
+- **Student matching**: (customer + school + first name + last name) → Update
+  class if changed → Create new. Case-insensitive. No automatic merging.
+
+### Historical data preservation
+
+- All OnKayit fields remain unchanged after submission.
+- OnKayit.sinifKademe (submitted class) never changes, even if the student
+  progresses.
+- Current Ogrenci.sinifKademe tracks the latest known class.
+- Two submissions one year apart:
+  - Same Musteri (if phone/email match).
+  - Same Ogrenci (if name + school match).
+  - Different OnKayit (new submission).
+  - OnKayit fields show original class; Ogrenci shows current class.
+
+### Privacy and data minimization
+
+- TC Kimlik storage rules unchanged: last 4 digits in OnKayit only (when school
+  requires).
+- Full TC never stored anywhere, including CRM records.
+- Musteri stores only operational contact data: name, phone, email.
+- No identity verification results, no browser fingerprints, no device IDs.
+
+### Admin interface
+
+Minimal customer search and summary:
+
+- `/admin/musteriler` — Search customers by name/phone/email.
+- `/admin/musteriler/[id]` — Customer detail: name, phone, students, request
+  history.
+- OnKayit detail page links to customer when available.
+- No customer dashboard, no segmentation, no marketing automation.
+
 ## Future domain boundaries
 
 The Prisma domain will later include (not yet implemented):
 
-- `Okul`
-- `OnKayit`
-- `Consent`
+- Additional CRM operations (customer notes, relationship history)
+- Segmentation and analytics
+- Marketing automation
 - `Teklif`
 - `IsBasvuru`
 - `Iletisim`

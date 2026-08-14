@@ -55,6 +55,14 @@ export default async function RequestDetailPage({
         notificationSent?: boolean;
         notificationSentAt?: Date | null;
         okul?: { ad?: string; slug?: string } | null;
+        musteri?: { id: string; adSoyad: string; telefon: string; eposta?: string; createdAt: Date } | null;
+        ogrenci?: {
+          id: string;
+          ad: string;
+          soyad: string;
+          sinifKademe: string;
+          okul: { ad: string };
+        } | null;
         consent?: {
           privacyNoticeVersion: string;
           privacyAcknowledgedAt: Date;
@@ -80,6 +88,47 @@ export default async function RequestDetailPage({
         </div>
         <Link className={styles.backLink} href="/admin/talepler">Geri dön</Link>
       </div>
+
+      {isOnKayit && detail.musteri ? (
+        <section className={styles.card}>
+          <h2 className={styles.sectionTitle}>Müşteri (CRM)</h2>
+          <div style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(auto-fit, minmax(16rem, 1fr))" }}>
+            <dl className={styles.list}>
+              <div className={styles.listRow}>
+                <dt className={styles.listLabel}>Ad Soyad</dt>
+                <dd className={styles.listValue}>{detail.musteri.adSoyad}</dd>
+              </div>
+              <div className={styles.listRow}>
+                <dt className={styles.listLabel}>Telefon</dt>
+                <dd className={styles.listValue}>{detail.musteri.telefon}</dd>
+              </div>
+              <div className={styles.listRow}>
+                <dt className={styles.listLabel}>E-posta</dt>
+                <dd className={styles.listValue}>{detail.musteri.eposta ?? "—"}</dd>
+              </div>
+            </dl>
+            {detail.ogrenci ? (
+              <dl className={styles.list}>
+                <div className={styles.listRow}>
+                  <dt className={styles.listLabel}>Öğrenci (Mevcut)</dt>
+                  <dd className={styles.listValue}>{detail.ogrenci.ad} {detail.ogrenci.soyad}</dd>
+                </div>
+                <div className={styles.listRow}>
+                  <dt className={styles.listLabel}>Okul</dt>
+                  <dd className={styles.listValue}>{detail.ogrenci.okul.ad}</dd>
+                </div>
+                <div className={styles.listRow}>
+                  <dt className={styles.listLabel}>Sınıf (Mevcut)</dt>
+                  <dd className={styles.listValue}>{detail.ogrenci.sinifKademe}</dd>
+                </div>
+              </dl>
+            ) : null}
+          </div>
+          <Link href={`/admin/musteriler/${detail.musteri.id}`} className={styles.backLink} style={{ marginTop: "1rem", display: "inline-block" }}>
+            Müşteri detaylarını gör
+          </Link>
+        </section>
+      ) : null}
 
       {isOnKayit ? (
         <section className={styles.grid}>

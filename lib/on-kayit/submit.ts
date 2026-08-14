@@ -1,4 +1,4 @@
-// OnKayit pre-registration submission logic (Phase 4).
+// OnKayit pre-registration submission logic (Phase 4-6).
 //
 // This is the server-side core of the public pre-registration flow. It is kept
 // OUTSIDE the "use server" actions file so it can be unit/integration tested
@@ -12,8 +12,9 @@
 //   4. Validate TC algorithmically when required.
 //   5. Store only the last 4 digits of TC (minimization) when required; drop
 //      any TC value when not required.
-//   6. Create OnKayit + Consent in ONE transaction.
-//   7. Send notification emails OUTSIDE the transaction; on failure keep
+//   6. Resolve customer and student via CRM foundation (Phase 6).
+//   7. Create OnKayit + Consent in ONE transaction.
+//   8. Send notification emails OUTSIDE the transaction; on failure keep
 //      notificationSent = false (no rollback).
 
 import "server-only";
@@ -27,6 +28,7 @@ import {
   sendOnKayitAdminNotification,
   sendOnKayitParentConfirmation,
 } from "@/lib/resend";
+import { resolveOrCreateCustomer, resolveOrCreateStudent } from "@/lib/crm";
 
 export type SubmitOnKayitInput = Record<string, string | undefined>;
 
@@ -97,11 +99,41 @@ export async function submitOnKayit(
   const ip = getClientIp(await headers());
   const consentAt = new Date();
 
-  // 6. Single transaction: OnKayit + Consent (atomic).
+  // 6 (new). CRM: Resolve or create customer and student before transaction.
+  // This happens outside the transaction so we can handle phone normalization
+  // and matching deterministically. If resolution fails, the entire submission
+  // fails; we do not create OnKayit without clear customer identity.
+  let musteriId: string;
+  let ogrenciId: string;
+
+  try {
+    const customer = await resolveOrCreateCustomer({
+      adSoyad: v.veliAdSoyad,
+      telefon: v.telefon,
+      eposta: v.eposta,
+    });
+    musteriId = customer.id;
+
+    const student = await resolveOrCreateStudent({
+      musteriId: customer.id,
+      okulId: okul.id,
+      ad: v.ogrenciAd,
+      soyad: v.ogrenciSoyad,
+      sinifKademe: v.sinifKademe,
+    });
+    ogrenciId = student.id;
+  } catch (err) {
+    console.error("[on-kayit] CRM resolution failed", err);
+    return { ok: false, error: "Müşteri ve öğrenci kimliği çözümlenemedi." };
+  }
+
+  // 7 (formerly 6). Single transaction: OnKayit + Consent (atomic).
   const kayit = await prisma.$transaction(async (tx) => {
     const created = await tx.onKayit.create({
       data: {
         okulId: okul.id,
+        musteriId,
+        ogrenciId,
         ogrenciAd: v.ogrenciAd,
         ogrenciSoyad: v.ogrenciSoyad,
         sinifKademe: v.sinifKademe,
@@ -136,7 +168,7 @@ export async function submitOnKayit(
     return created;
   });
 
-  // 7. Email notifications OUTSIDE the transaction.
+  // 8 (formerly 7). Email notifications OUTSIDE the transaction.
   try {
     await sendOnKayitAdminNotification({
       okulAd: okul.ad,

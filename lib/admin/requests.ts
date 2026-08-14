@@ -310,6 +310,16 @@ export async function getRequestDetail(type: UnifiedRequestType, id: string) {
     where: { id },
     include: {
       okul: { select: { ad: true, slug: true } },
+      musteri: { select: { id: true, adSoyad: true, telefon: true, eposta: true, createdAt: true } },
+      ogrenci: {
+        select: {
+          id: true,
+          ad: true,
+          soyad: true,
+          sinifKademe: true,
+          okul: { select: { ad: true } },
+        },
+      },
       consent: true,
     },
   });

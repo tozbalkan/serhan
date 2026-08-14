@@ -39,10 +39,10 @@ npx prisma generate  # Prisma client yeniden üret
 
 ## Yapı
 
-- `app/` — `(website)`, `on-kayit/[slug]` (herkese açık okul girişi), `admin/okullar` (okul yönetimi), `api/admin/okullar/[id]/qr` (QR üretimi)
+- `app/` — `(website)`, `on-kayit/[slug]` (herkese açık okul girişi), `admin/` (yönetim paneli), `api/` (API routes)
 - `components/` — `admin/` (okul tablosu, QR indirme, durum değiştirme, oluşturma formu)
-- `lib/` — `db`, `auth`, `resend`, `qr`, `ip`, `validation`, `legal`, `slug`, `schools`
-- `prisma/` — `schema.prisma` (tam domain modeli) + üretilen client + migration
+- `lib/` — `db`, `auth`, `resend`, `qr`, `ip`, `validation`, `legal`, `slug`, `schools`, `crm`, `on-kayit`, `admin`
+- `prisma/` — `schema.prisma` (tam domain modeli) + üretilen client + migrations
 - `styles/` — tasarım tokenları (HSL) ve global stiller
 - `legal/` — sürümlemeyle tutulan yasal belgeler
 - `docs/` — `architecture.md`, `frontend-rules.md` (kalıcı kurallar)
@@ -53,9 +53,12 @@ npx prisma generate  # Prisma client yeniden üret
 `docs/architecture.md` dosyasına bakın. Bu kurallar kalıcıdır; her kod
 değişikliği öncesinde okunmalıdır.
 
-> **Aşamalar:** Bootstrap ✅ · Domain şeması + migration ✅ · Okul yönetimi + QR
-> + herkese açık okul girişi ✅ · Okul servisi ön kayıt akışı (form, KVKK onay
-> akışı, TC algoritmik doğrulama, Resend bildirimleri) ✅.
+> **Aşamalar:** 
+> Bootstrap ✅ · Domain şeması + migration ✅ · Okul yönetimi + QR + herkese açık
+> okul girişi ✅ · Okul servisi ön kayıt akışı (form, KVKK onay akışı, TC
+> algoritmik doğrulama, Resend bildirimleri) ✅ · Admin paneli (talepler, durum
+> yönetimi, kimlik doğrulama) ✅ · CRM vakfı (Müşteri, Öğrenci, kimlik
+> eşleşmesi) ✅.
 >
 > **Önemli:** Açık rıza (explicit consent) ön kayıt akışı için **yapılandırılabilir**
 > bir gereksinimdir; evrensel olarak zorunlu kabul edilmez. Varsayılan
@@ -63,4 +66,3 @@ değişikliği öncesinde okunmalıdır.
 > teknik varsayımdır — hukuki dayanak (sözleşme/meşru menfaat veya açık rıza)
 > hukuk birimi tarafından teyit edilene kadar geçerlidir. Pazarlama izni her
 > zaman ayrı ve isteğe bağlıdır; aydınlatma ile açık rıza ayrı kavramlardır.
-> Sıradaki: birleşik talepler, kimlik doğrulama UI, CMS.

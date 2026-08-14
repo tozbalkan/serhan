@@ -37,6 +37,48 @@ enum TalepDurumu {
 }
 
 // ---------------------------------------------------------------------------
+// Musteri (Customer / Parent)
+// ---------------------------------------------------------------------------
+
+model Musteri {
+  id        String   @id @default(cuid())
+  adSoyad   String
+  telefon   String   @unique // primary matching key
+  eposta    String?  // secondary matching key
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ogrenciler Ogrenci[]
+  onKayitlar OnKayit[]
+
+  @@index([telefon])
+  @@index([eposta])
+}
+
+// ---------------------------------------------------------------------------
+// Ogrenci (Student)
+// ---------------------------------------------------------------------------
+
+model Ogrenci {
+  id           String   @id @default(cuid())
+  musteriId    String
+  okulId       String
+  ad           String
+  soyad        String
+  sinifKademe  String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  musteri    Musteri    @relation(fields: [musteriId], references: [id])
+  okul       Okul       @relation(fields: [okulId], references: [id])
+  onKayitlar OnKayit[]
+
+  @@index([musteriId])
+  @@index([okulId])
+  @@unique([musteriId, ad, soyad, okulId]) // composite unique: same student in same school
+}
+
+// ---------------------------------------------------------------------------
 // Okul (School)
 // ---------------------------------------------------------------------------
 
@@ -49,6 +91,7 @@ model Okul {
   createdAt     DateTime @default(now())
 
   onKayitlar OnKayit[]
+  ogrenciler Ogrenci[]
 
   @@index([aktif])
 }
@@ -58,25 +101,31 @@ model Okul {
 // ---------------------------------------------------------------------------
 
 model OnKayit {
-  id                 String      @id @default(cuid())
+  id                 String       @id @default(cuid())
   okulId             String
-  ogrenciAd          String
-  ogrenciSoyad       String
-  sinifKademe        String
-  tcKimlikNo         String? // required only when Okul.tcKimlikIster; decided at app layer
-  adres              String
-  veliAdSoyad        String
-  telefon            String
-  eposta             String?
-  status             TalepDurumu @default(YENI)
-  notificationSent   Boolean     @default(false)
+  musteriId          String?      // CRM: current customer/parent
+  ogrenciId          String?      // CRM: current student identity
+  ogrenciAd          String       // historical snapshot
+  ogrenciSoyad       String       // historical snapshot
+  sinifKademe        String       // historical snapshot
+  tcKimlikNo         String?      // required only when Okul.tcKimlikIster; decided at app layer
+  adres              String       // historical snapshot
+  veliAdSoyad        String       // historical snapshot
+  telefon            String       // historical snapshot
+  eposta             String?      // historical snapshot
+  status             TalepDurumu  @default(YENI)
+  notificationSent   Boolean      @default(false)
   notificationSentAt DateTime?
-  createdAt          DateTime    @default(now())
+  createdAt          DateTime     @default(now())
 
-  okul    Okul     @relation(fields: [okulId], references: [id])
-  consent Consent?
+  okul      Okul       @relation(fields: [okulId], references: [id])
+  musteri   Musteri?   @relation(fields: [musteriId], references: [id])
+  ogrenci   Ogrenci?   @relation(fields: [ogrenciId], references: [id])
+  consent   Consent?
 
   @@index([okulId])
+  @@index([musteriId])
+  @@index([ogrenciId])
   @@index([createdAt])
   @@index([status])
 }
